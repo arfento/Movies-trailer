@@ -1,9 +1,11 @@
 package com.ims.movies_trailer.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ims.movies_trailer.data.models.Movie
 import com.ims.movies_trailer.databinding.MovieItemBinding
@@ -18,9 +20,21 @@ class MovieAdapter(
     private val moviesViewModel: MoviesViewModel
 ) : PagedListAdapter<Movie, MovieAdapter.ViewHolder>(MovieDiffCallback) {
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder.fromParent(parent)
+    }
 
-    class ViewHolder private constructor(val movieItemBinding: MovieItemBinding) :
-        RecyclerView.ViewHolder(movieItemBinding.root) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val movie = getItem(position)
+        movie?.let {
+            holder.bind(it, moviesViewModel)
+        }
+    }
+
+
+    class ViewHolder private constructor(
+        val movieItemBinding: MovieItemBinding
+    ) : RecyclerView.ViewHolder(movieItemBinding.root) {
         companion object {
             fun fromParent(parent: ViewGroup): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
@@ -34,21 +48,11 @@ class MovieAdapter(
             movieItemBinding.viewmodel = moviesViewModel
             movieItemBinding.executePendingBindings()
         }
-
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.fromParent(parent)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val movie = getItem(position)
-        movie?.let {
-            holder.bind(it, moviesViewModel)
-        }
-    }
 
 }
+
 
 object MovieDiffCallback : DiffUtil.ItemCallback<Movie>() {
     override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean {

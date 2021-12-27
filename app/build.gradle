@@ -4,12 +4,14 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 apply plugin: "androidx.navigation.safeargs.kotlin"
+
 android {
     buildFeatures {
         dataBinding = true
     }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
+
     defaultConfig {
         applicationId "com.ims.movies_trailer"
         minSdkVersion 22
@@ -17,7 +19,6 @@ android {
         versionCode 1
         versionName "1.0"
         vectorDrawables.useSupportLibrary = true
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -33,13 +34,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = "1.8"
     }
+
 }
 
 dependencies {

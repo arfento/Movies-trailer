@@ -4,10 +4,9 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
-import com.morgan.trailers.MainActivity
-import com.morgan.trailers.R
+import com.ims.movies_trailer.MainActivity
+import com.ims.movies_trailer.R
 
 // Notification ID.
 private val NOTIFICATION_ID = 0

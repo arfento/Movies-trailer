@@ -11,43 +11,34 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class MovieSearchBoundaryCallback(
+class MovieSearchBoundaryCallback (
     private val query: String,
     private val service: NetworkApiService,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val movieDao: MovieDao
-) : PagedList.BoundaryCallback<Movie>() {
+): PagedList.BoundaryCallback<Movie>(){
 
     private var searchRequestedPage = 1
 
     private var isRequestInProgress = false
     private val _networkErrors = MutableLiveData<String>()
-
-    //livedata of networdk errors
+    // LiveData of network errors.
     val networkErrors: LiveData<String>
         get() = _networkErrors
 
     private val _loadingProgress = MutableLiveData<Boolean>()
-    val loadingProgressBar : LiveData<Boolean>
-        get() = _loadingProgress
-
+    val loadingProgress: LiveData<Boolean> get() = _loadingProgress
     override fun onZeroItemsLoaded() {
-//        super.onZeroItemsLoaded()
-        Timber.d("onZeroItemsLoaded called")
-        val scope = CoroutineScope(dispatcher)
+        val  scope = CoroutineScope(dispatcher)
         scope.launch {
             searchAndSaveMovie(query)
-        }
-    }
+        }    }
 
     override fun onItemAtEndLoaded(itemAtEnd: Movie) {
-//        super.onItemAtEndLoaded(itemAtEnd)
-        Timber.d("onItemAtEndLoaded called")
-        val scope = CoroutineScope(dispatcher)
+        val  scope = CoroutineScope(dispatcher)
         scope.launch {
             searchAndSaveMovie(query)
-        }
-    }
+        }     }
 
     private suspend fun searchAndSaveMovie(query: String){
         if (isRequestInProgress) return
@@ -67,5 +58,4 @@ class MovieSearchBoundaryCallback(
         })
 
     }
-
 }

@@ -7,4 +7,13 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="colorPrimary">#000000</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#FFFFFF</color>
+    <!-- Gradient scrim color to separate text from the background -->
+    <color name="start_color_gradient">#40000000</color>
+    <color name="center_color_gradient">#00000000</color>
+    <color name="end_color_gradient">#96000000</color>
+
 </resources>

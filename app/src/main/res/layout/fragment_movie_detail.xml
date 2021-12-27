@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewmodel"
-            type="com.ims.movies_trailer.movie_details.MovieDetailViewModel" />
+            type="com.ims.movies_trailer.ui.viewmodel.MovieDetailViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

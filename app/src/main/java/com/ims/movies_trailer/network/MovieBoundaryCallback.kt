@@ -12,53 +12,52 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class MovieBoundaryCallback(
-    private val movieType: MovieType,
-    private val service : NetworkApiService,
-    private val movieDao : MovieDao,
-    private val dispatcher : CoroutineDispatcher = Dispatchers.Default
+class MovieBoundaryCallback (
+    private val movieType: MovieType ,
+    private  val service: NetworkApiService,
+    private val movieDao: MovieDao,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+): PagedList.BoundaryCallback<Movie>(){
 
-) : PagedList.BoundaryCallback<Movie>() {
-    private var lastRequestPage = 1
+    private var lastRequestedPage = 1
+
     private var isRequestInProgress = false
     private val _networkErrors = MutableLiveData<String>()
-
-    //livedata of networdk errors
+    // LiveData of network errors.
     val networkErrors: LiveData<String>
         get() = _networkErrors
 
+
     private val _loadingProgress = MutableLiveData<Boolean>()
-    val loadingProgressBar : LiveData<Boolean>
+    val loadingProgress: LiveData<Boolean>
         get() = _loadingProgress
 
     override fun onZeroItemsLoaded() {
-//        super.onZeroItemsLoaded()
         Timber.d("onZeroItemsLoaded called")
-        val scope = CoroutineScope(dispatcher)
+        val  scope = CoroutineScope(dispatcher)
         scope.launch {
             requestAndSaveMovie(movieType)
         }
     }
 
     override fun onItemAtEndLoaded(itemAtEnd: Movie) {
-//        super.onItemAtEndLoaded(itemAtEnd)
         Timber.d("onItemAtEndLoaded called")
-        val scope = CoroutineScope(dispatcher)
+
+        val  scope = CoroutineScope(dispatcher)
         scope.launch {
             requestAndSaveMovie(movieType)
-        }
-    }
+        }    }
 
-    private suspend fun requestAndSaveMovie(movieType: MovieType = MovieType.Popular) {
+    private suspend fun requestAndSaveMovie(movieType: MovieType = MovieType.Popular){
         if (isRequestInProgress) return
         isRequestInProgress = true
         _loadingProgress.postValue(true)
-        getMovieFromType(movieType, service, lastRequestPage, { movies ->
+        getMovieFromType(movieType, service, lastRequestedPage, { movies->
             movies.forEach {
                 it.movieType = movieType
             }
             movieDao.insertMovies(movies)
-            lastRequestPage++
+            lastRequestedPage++
             isRequestInProgress = false
             _loadingProgress.postValue(false)
 
@@ -70,6 +69,9 @@ class MovieBoundaryCallback(
         })
 
     }
+
+
+
 
 
 }

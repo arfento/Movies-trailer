@@ -1,8 +1,9 @@
-package com.ims.movies_trailer.ui.viewmodel
+package com.ims.movies_trailer.ui.Factory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.ims.movies_trailer.ui.repository.MovieRepository
+import com.ims.movies_trailer.ui.viewmodel.MoviesViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
@@ -10,7 +11,6 @@ import kotlinx.coroutines.FlowPreview
 class MovieViewModelFactory (
     private val movieRepository: MovieRepository
 ) : ViewModelProvider.NewInstanceFactory() {
-
     @ExperimentalCoroutinesApi
     @FlowPreview
     override fun <T : ViewModel> create(modelClass: Class<T>) =

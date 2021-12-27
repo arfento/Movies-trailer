@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Workspace/Moviestrailer/app/src/main/res/drawable-v24/photo.xml" value="0.1" />
         <entry key="..\:/Workspace/Moviestrailer/app/src/main/res/layout/fragment_movie_detail.xml" value="0.1" />
         <entry key="..\:/Workspace/Moviestrailer/app/src/main/res/layout/fragment_movies.xml" value="0.1" />
         <entry key="..\:/Workspace/Moviestrailer/app/src/main/res/layout/movie_item.xml" value="0.1" />

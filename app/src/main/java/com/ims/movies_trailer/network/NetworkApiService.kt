@@ -1,10 +1,12 @@
 package com.ims.movies_trailer.network
 
+import com.ims.movies_trailer.BuildConfig
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 public const val apiKey: String = BuildConfig.API_KEY
+//public const val apiKey: String = "4a329289acb21054e19231fa30afe4f3"
 
 
 object NetworkApiService {

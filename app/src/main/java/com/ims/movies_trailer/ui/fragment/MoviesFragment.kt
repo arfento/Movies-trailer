@@ -1,59 +1,160 @@
 package com.ims.movies_trailer.ui.fragment
 
 import android.os.Bundle
+import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
+import com.ims.movies_trailer.R
+import com.ims.movies_trailer.TrailersApplication
+import com.ims.movies_trailer.adapter.MovieAdapter
+import com.ims.movies_trailer.data.models.MovieType
+import com.ims.movies_trailer.databinding.FragmentMoviesBinding
+import com.ims.movies_trailer.ui.Factory.MovieViewModelFactory
+import com.ims.movies_trailer.ui.viewmodel.MoviesViewModel
+import com.ims.movies_trailer.utils.EventObserver
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import timber.log.Timber
 
 /**
  * A simple [Fragment] subclass.
- * Use the [MoviesFragment.newInstance] factory method to
- * create an instance of this fragment.
  */
+@ExperimentalCoroutinesApi
+@FlowPreview
 class MoviesFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+    private val  movieViewModel by viewModels<MoviesViewModel> {
+        MovieViewModelFactory((requireActivity().applicationContext as TrailersApplication).movieRepository)
     }
 
+    private lateinit var binding: FragmentMoviesBinding
+    private  lateinit var adapter: MovieAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_movies, container, false)
+        adapter = MovieAdapter(movieViewModel)
+        binding = FragmentMoviesBinding.inflate(inflater).apply {
+            lifecycleOwner = viewLifecycleOwner
+            viewModel = movieViewModel
+            recyclerView.adapter = adapter
+        }
+
+        setHasOptionsMenu(true)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment MoviesFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            MoviesFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        setUpMovieObserver()
+        setUpNetworkErrorObserver()
+        setUpNavigationToDetailsObserver()
+        setUpTitleObserver()
+    }
+
+
+    private fun setUpMovieObserver(){
+        movieViewModel.movies.observe(viewLifecycleOwner, Observer {
+            Timber.d("This is the number of  movies observed${it.size}")
+            adapter.submitList(it)
+        })
+        movieViewModel.searchedMovies.observe(viewLifecycleOwner, Observer {
+            Timber.d("This is the number of  movies observed${it.size}")
+            adapter.submitList(it)
+        })
+    }
+
+
+    private fun setUpNetworkErrorObserver(){
+        movieViewModel.networkErrors.observe(viewLifecycleOwner, Observer{
+            Snackbar.make(requireView(),it,Snackbar.LENGTH_LONG).show()
+        })
+        movieViewModel.searchNetworkErrors.observe(viewLifecycleOwner, Observer{
+            Snackbar.make(requireView(),it,Snackbar.LENGTH_LONG).show()
+        })
+    }
+
+    private fun setUpTitleObserver(){
+        movieViewModel.currentTitle.observe(viewLifecycleOwner, Observer {
+            requireActivity().setTitle(it)
+        })
+    }
+
+    private fun setUpNavigationToDetailsObserver(){
+        movieViewModel.openDetailsEvent.observe(viewLifecycleOwner, EventObserver{
+            openMovieDetail(it)
+        })
+    }
+
+    private fun openMovieDetail(movieId: Int){
+        Timber.d("openMovieDetail is called with $movieId in MoviesFragment")
+
+        val action = MoviesFragmentDirections.actionMoviesFragmentToMovieDetail(movieId)
+        findNavController().navigate(action)
+    }
+
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.movie_type_menu,menu)
+        initSearch(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when(item.itemId){
+
+        R.id.popular_menu->{
+            movieViewModel.changeMovieType(MovieType.Popular)
+            true
+        }
+        R.id.top_rated_menu->{
+            movieViewModel.changeMovieType(MovieType.TopRated)
+            true
+        }
+        R.id.now_playing_menu->{
+            movieViewModel.changeMovieType(MovieType.NowPlaying)
+            true
+        }
+        else ->  {
+            movieViewModel.changeMovieType(MovieType.UpComing)
+            true
+        }
+    }
+
+    private fun updateMoviesListFromInput(query: String?) {
+        query?.trim().let {
+            if (!it.isNullOrEmpty()) {
+                binding.recyclerView.scrollToPosition(0)
+                movieViewModel.searchRepo(it.toString())
+                adapter.submitList(null)
             }
+        }
+    }
+
+    private fun initSearch(menu: Menu) {
+        val searchItem = menu.findItem(R.id.search_menu)
+        val searchView = searchItem.actionView as android.widget.SearchView
+        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener,
+            android.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                try {
+                    updateMoviesListFromInput(query)
+
+                } catch (e: Exception){
+                    Timber.d(e)
+                }
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (searchView.query.isEmpty()) {
+                    movieViewModel.refreshType()
+                }
+                return false
+            }
+
+        })
     }
 }
